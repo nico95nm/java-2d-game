@@ -16,8 +16,11 @@ public class GamePanel extends JPanel implements Runnable {
     final int screenWidth = tileSize * maxScreenRow; // 768px
     final int screenHeight = tileSize * maxScreenRow; // 576px
 
-    // Set players default position
+    // FPS
+    int FPS = 60;
 
+
+    // Set players default position
     int playerX = 100;
     int playerY = 100;
     int playerSpeed = 4;
@@ -41,9 +44,19 @@ public void startGameThread(){
     gameThread.start();
     }
 
+    /*
     @Override
     public void run() {
+        // sleep method nanosecond - precise calculation
+        double drawInterval = 1000000000/FPS; // 0.016666 seconds
+        double nextDrawTime = System.nanoTime() + drawInterval;
+
+
         while(gameThread !=null){
+            // long currentTime = System.nanoTime();
+            // System.out.println("Current Time" + currentTime);
+            // This is also good but we dont use it
+            // long currentTime2 = System.currentTimeMillis();
 
             System.out.println("This game loop is running");
             // 1 Update: update information such as character position
@@ -51,9 +64,48 @@ public void startGameThread(){
 
             // 2 Draw: Draw the screen with the updated information
             repaint();
-        }
-}
 
+            try {
+            double remainingTime = nextDrawTime - System.nanoTime();
+                remainingTime = remainingTime/1000000;
+                if (remainingTime < 0) {
+                    remainingTime = 0;
+
+                }
+
+            Thread.sleep((long)remainingTime);
+                nextDrawTime += drawInterval;
+
+            } catch (InterruptedException e) {
+
+                e.printStackTrace();
+            }
+        }
+}*/
+public void run() {
+
+    double drawInterval = 1000000/FPS;
+    double delta = 0;
+
+    long lastTime = System.nanoTime();
+    long currentTime;
+
+    while (gameThread != null){
+        currentTime = System.nanoTime();
+        delta +=(currentTime-lastTime)/drawInterval;
+
+        lastTime = currentTime;
+        if (delta >= 1) {
+
+update();
+repaint();
+          delta--;
+
+        }
+
+
+    }
+}
 public void update(){
     if(keyH.upPressed == true){
         playerY -= playerSpeed;
